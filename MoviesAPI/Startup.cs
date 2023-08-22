@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MoviesAPI.Interfaces;
+using MoviesAPI.Services;
 
 namespace MoviesAPI
 {
@@ -15,6 +17,9 @@ namespace MoviesAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Startup));
+
+            services.AddTransient<IStoreFile, StoreFileLocal>();
+            services.AddHttpContextAccessor();
 
             services.AddDbContext<ApplicationDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
@@ -33,6 +38,8 @@ namespace MoviesAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 

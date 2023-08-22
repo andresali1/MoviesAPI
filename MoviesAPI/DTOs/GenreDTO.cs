@@ -8,7 +8,6 @@ namespace MoviesAPI.DTOs
 
         [Required]
         [StringLength(40)]
-        [Display(Name = "Name")]
         public string G_Name { get; set; }
     }
 }
