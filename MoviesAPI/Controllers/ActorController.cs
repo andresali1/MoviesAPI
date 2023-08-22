@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using MoviesAPI.Helpers;
 using MoviesAPI.Interfaces;
 
 namespace MoviesAPI.Controllers
@@ -30,9 +33,11 @@ namespace MoviesAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet(Name = "getActors")]
-        public async Task<ActionResult<List<ActorDTO>>> Get()
+        public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            var entities = await _context.Actor.ToListAsync();
+            var queryable = _context.Actor.AsQueryable();
+            await HttpContext.InsertPaginationParams(queryable, paginationDTO.RecordsPerPage);
+            var entities = await queryable.Page(paginationDTO).ToListAsync();
             var dtos = _mapper.Map<List<ActorDTO>>(entities);
             return dtos;
         }
@@ -113,6 +118,39 @@ namespace MoviesAPI.Controllers
             }
 
             await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPatch("{id:int}", Name = "patchActor")]
+        public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
+        {
+            if(patchDocument == null)
+            {
+                return BadRequest();
+            }
+
+            var entityDB = await _context.Actor.FirstOrDefaultAsync(a => a.Id == id);
+
+            if(entityDB == null)
+            {
+                return NotFound();
+            }
+
+            var entityDTO = _mapper.Map<ActorPatchDTO>(entityDB);
+
+            patchDocument.ApplyTo(entityDTO, ModelState);
+
+            var isValid = TryValidateModel(entityDTO);
+
+            if (!isValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _mapper.Map(entityDTO, entityDB);
+
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
 
