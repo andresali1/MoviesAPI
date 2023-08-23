@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using MoviesAPI.Helpers;
 using MoviesAPI.Interfaces;
 
 namespace MoviesAPI.Controllers
@@ -38,21 +39,93 @@ namespace MoviesAPI.Controllers
         }
 
         /// <summary>
+        /// Method to get the newest movies
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("latest", Name = "getLatest")]
+        public async Task<ActionResult<MovieIndexDTO>> GetLatest()
+        {
+            var top = 5;
+            var today = DateTime.Today;
+
+            var comingReleases = await _context.Movie
+                .Where(m => m.RealeaseDate > today)
+                .OrderBy(m => m.RealeaseDate)
+                .Take(top)
+                .ToListAsync();
+
+            var recentReleases = await _context.Movie
+                .Where(m => m.JustReleased)
+                .Take(top)
+                .ToListAsync();
+
+            var result = new MovieIndexDTO();
+            result.ComingReleases = _mapper.Map<List<MovieDTO>>(comingReleases);
+            result.InTheaters = _mapper.Map<List<MovieDTO>>(recentReleases);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Method to get movies by given filters in the query string
+        /// </summary>
+        /// <param name="movieFilterDTO">Object with the filters</param>
+        /// <returns></returns>
+        [HttpGet("filter", Name = "getFilter")]
+        public async Task<ActionResult<List<MovieDTO>>> Filter([FromQuery] MovieFilterDTO movieFilterDTO)
+        {
+            var moviesQueryable = _context.Movie.AsQueryable();
+
+            if (!string.IsNullOrEmpty(movieFilterDTO.Title))
+            {
+                moviesQueryable = moviesQueryable.Where(m => m.Title.Contains(movieFilterDTO.Title));
+            }
+
+            if (movieFilterDTO.JustReleased)
+            {
+                moviesQueryable = moviesQueryable.Where(m => m.JustReleased);
+            }
+
+            if (movieFilterDTO.ComingRelease)
+            {
+                var today = DateTime.Today;
+                moviesQueryable = moviesQueryable.Where(m => m.RealeaseDate > today);
+            }
+
+            if(movieFilterDTO.GenreId != 0)
+            {
+                moviesQueryable = moviesQueryable.Where(m => m.MovieGenre.Select(mg => mg.GenreId)
+                    .Contains(movieFilterDTO.GenreId));
+            }
+
+            await HttpContext.InsertPaginationParams(moviesQueryable, movieFilterDTO.RecordsPerPage);
+
+            var movies = await moviesQueryable.Page(movieFilterDTO.Pagination).ToListAsync();
+
+            return _mapper.Map<List<MovieDTO>>(movies);
+        }
+
+        /// <summary>
         /// Method to get a Movie by its Id
         /// </summary>
         /// <param name="id">Id of the Movie</param>
         /// <returns></returns>
         [HttpGet("{id:int}", Name = "getMovie")]
-        public async Task<ActionResult<MovieDTO>> Get(int id)
+        public async Task<ActionResult<MovieDetailDTO>> Get(int id)
         {
-            var entity = await _context.Movie.FirstOrDefaultAsync(m => m.Id == id);
+            var entity = await _context.Movie
+                .Include(m => m.MovieActor).ThenInclude(m => m.Actor)
+                .Include(m => m.MovieGenre).ThenInclude(m => m.Genre)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (entity == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<MovieDTO>(entity);
+            entity.MovieActor = entity.MovieActor.OrderBy(m => m.Order_Num).ToList();
+
+            return _mapper.Map<MovieDetailDTO>(entity);
         }
 
         /// <summary>
@@ -91,7 +164,10 @@ namespace MoviesAPI.Controllers
         [HttpPut("{id:int}", Name = "putMovie")]
         public async Task<ActionResult> Put(int id, [FromForm] MovieCreationDTO movieCreationDTO)
         {
-            var movieDB = await _context.Movie.FirstOrDefaultAsync(m => m.Id == id);
+            var movieDB = await _context.Movie
+                .Include(m => m.MovieActor)
+                .Include(m => m.MovieGenre)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (movieDB == null)
             {
@@ -111,8 +187,24 @@ namespace MoviesAPI.Controllers
                 }
             }
 
+            AssignActorsOrder(movieDB);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        /// <summary>
+        /// Method to assing the order of the actors of the movie
+        /// </summary>
+        /// <param name="movie">Movie with the actors data</param>
+        private void AssignActorsOrder(Movie movie)
+        {
+            if(movie.MovieActor != null)
+            {
+                for(int i = 0; i < movie.MovieActor.Count; i++)
+                {
+                    movie.MovieActor[i].Order_Num = i;
+                }
+            }
         }
 
         /// <summary>

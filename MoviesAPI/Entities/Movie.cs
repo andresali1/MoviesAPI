@@ -15,5 +15,9 @@ namespace MoviesAPI.Entities
         public DateTime RealeaseDate { get; set; }
 
         public string Poster { get; set; }
+
+        public List<MovieActor> MovieActor { get; set; }
+
+        public List<MovieGenre> MovieGenre { get; set; }
     }
 }

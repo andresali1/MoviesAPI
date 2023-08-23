@@ -9,5 +9,7 @@ namespace MoviesAPI.Entities
         [Required]
         [StringLength(40)]
         public string G_Name { get; set; }
+
+        public List<MovieGenre> MovieGenre { get; set; }
     }
 }

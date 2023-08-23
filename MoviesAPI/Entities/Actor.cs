@@ -13,5 +13,7 @@ namespace MoviesAPI.Entities
         public DateTime BirthDate { get; set; }
 
         public string Photo { get; set; }
+
+        public List<MovieActor> MovieActor { get; set; }
     }
 }

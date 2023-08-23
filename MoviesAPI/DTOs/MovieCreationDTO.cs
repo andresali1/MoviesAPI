@@ -1,5 +1,6 @@
-﻿using MoviesAPI.Validations;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using MoviesAPI.Helpers;
+using MoviesAPI.Validations;
 
 namespace MoviesAPI.DTOs
 {
@@ -8,5 +9,11 @@ namespace MoviesAPI.DTOs
         [FileSizeValidation(maxSizeInMegabytes: 4)]
         [FileTypeValidation(fileTypeGroup: FileTypeGroup.Image)]
         public IFormFile Poster { get; set; }
+
+        [ModelBinder(BinderType = typeof(TypeBinder<List<int>>))]
+        public List<int> GenreIds { get; set; }
+
+        [ModelBinder(BinderType = typeof(TypeBinder<List<ActorMovieCreationDTO>>))]
+        public List<ActorMovieCreationDTO> Actors { get; set; }
     }
 }
