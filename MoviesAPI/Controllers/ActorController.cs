@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -57,8 +56,8 @@ namespace MoviesAPI.Controllers
                 return NotFound();
             }
 
-            var dto = _mapper.Map<ActorDTO>(entity);
-            return dto;
+            var actorDto = _mapper.Map<ActorDTO>(entity);
+            return actorDto;
         }
 
         /// <summary>
@@ -84,8 +83,8 @@ namespace MoviesAPI.Controllers
 
             _context.Add(entity);
             await _context.SaveChangesAsync();
-            var dto = _mapper.Map<ActorDTO>(entity);
-            return new CreatedAtRouteResult("getActor", new { id = entity.Id }, dto);
+            var actorDto = _mapper.Map<ActorDTO>(entity);
+            return new CreatedAtRouteResult("getActor", new { id = entity.Id }, actorDto);
         }
 
         /// <summary>

@@ -4,8 +4,8 @@ namespace MoviesAPI.DTOs
 {
     public class ActorDTO
     {
-        [Required]
-        [StringLength(120)]
+        public int Id { get; set; }
+
         public string A_Name { get; set; }
 
         public DateTime BirthDate { get; set; }
