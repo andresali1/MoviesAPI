@@ -475,4 +475,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-/MoviesAPI/wwwroot
+
+# Exclude local images
+/MoviesAPI/wwwroot/*

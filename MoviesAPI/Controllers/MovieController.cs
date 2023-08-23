@@ -6,6 +6,7 @@ using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
 using MoviesAPI.Helpers;
 using MoviesAPI.Interfaces;
+using System.Linq.Dynamic.Core;
 
 namespace MoviesAPI.Controllers
 {
@@ -16,15 +17,18 @@ namespace MoviesAPI.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IStoreFile _storeFile;
+        private readonly ILogger _logger;
         private readonly string _container = "movies";
 
         public MovieController(ApplicationDbContext context,
             IMapper mapper,
-            IStoreFile storeFile)
+            IStoreFile storeFile,
+            ILogger<MovieController> logger)
         {
             _context = context;
             _mapper = mapper;
             _storeFile = storeFile;
+            _logger = logger;
         }
 
         /// <summary>
@@ -96,6 +100,20 @@ namespace MoviesAPI.Controllers
             {
                 moviesQueryable = moviesQueryable.Where(m => m.MovieGenre.Select(mg => mg.GenreId)
                     .Contains(movieFilterDTO.GenreId));
+            }
+
+            if (!string.IsNullOrEmpty(movieFilterDTO.OrderField))
+            {
+                var orderType = movieFilterDTO.AscendingOrder ? "ascending" : "descending";
+
+                try
+                {
+                    moviesQueryable = moviesQueryable.OrderBy($"{movieFilterDTO.OrderField} {orderType}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex);
+                }
             }
 
             await HttpContext.InsertPaginationParams(moviesQueryable, movieFilterDTO.RecordsPerPage);

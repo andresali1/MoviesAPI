@@ -16,5 +16,8 @@
         public int GenreId { get; set; }
         public bool JustReleased { get; set; }
         public bool ComingRelease { get; set; }
+
+        public string OrderField { get; set; }
+        public bool AscendingOrder { get; set; } = true;
     }
 }

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using MoviesAPI.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace MoviesAPI.Entities
 {
-    public class Movie
+    public class Movie : IId
     {
         public int Id { get; set; }
 

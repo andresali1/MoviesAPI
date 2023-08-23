@@ -9,13 +9,14 @@ namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api/genre")]
-    public class GenreController : ControllerBase
+    public class GenreController : CustomBaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
 
         public GenreController(ApplicationDbContext context,
             IMapper mapper)
+            :base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -28,9 +29,7 @@ namespace MoviesAPI.Controllers
         [HttpGet(Name = "getGenres")]
         public async Task<ActionResult<List<GenreDTO>>> Get()
         {
-            var entities = await _context.Genre.ToListAsync();
-            var dtos = _mapper.Map<List<GenreDTO>>(entities);
-            return dtos;
+            return await Get<Genre, GenreDTO>();
         }
 
         /// <summary>
@@ -41,15 +40,7 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id:int}", Name = "getGenre")]
         public async Task<ActionResult<GenreDTO>> Get(int id)
         {
-            var entity = await _context.Genre.FirstOrDefaultAsync(g => g.Id == id);
-
-            if (entity == null)
-            {
-                return NotFound();
-            }
-
-            var dto = _mapper.Map<GenreDTO>(entity);
-            return dto;
+            return await Get<Genre, GenreDTO>(id);
         }
 
         /// <summary>
@@ -60,12 +51,7 @@ namespace MoviesAPI.Controllers
         [HttpPost(Name = "createGenre")]
         public async Task<ActionResult> Post([FromBody] GenreCreationDTO genreCreationDTO)
         {
-            var entity = _mapper.Map<Genre>(genreCreationDTO);
-            _context.Add(entity);
-            await _context.SaveChangesAsync();
-            var genreDTO = _mapper.Map<GenreDTO>(entity);
-
-            return new CreatedAtRouteResult("getGenre", new { id = genreDTO.Id }, genreDTO);
+            return await Post<GenreCreationDTO, Genre, GenreDTO>(genreCreationDTO, "getGenre");
         }
 
         /// <summary>

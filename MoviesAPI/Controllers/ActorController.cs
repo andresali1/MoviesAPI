@@ -70,7 +70,7 @@ namespace MoviesAPI.Controllers
         {
             var entity = _mapper.Map<Actor>(actorCreationDTO);
 
-            if(actorCreationDTO.Photo != null)
+            if (actorCreationDTO.Photo != null)
             {
                 using (var memoryStream = new MemoryStream())
                 {
@@ -120,17 +120,23 @@ namespace MoviesAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Method to update a especific field of an Actor
+        /// </summary>
+        /// <param name="id">Id of the Actor</param>
+        /// <param name="patchDocument">Object with the field information to update</param>
+        /// <returns></returns>
         [HttpPatch("{id:int}", Name = "patchActor")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
         {
-            if(patchDocument == null)
+            if (patchDocument == null)
             {
                 return BadRequest();
             }
 
             var entityDB = await _context.Actor.FirstOrDefaultAsync(a => a.Id == id);
 
-            if(entityDB == null)
+            if (entityDB == null)
             {
                 return NotFound();
             }
@@ -168,7 +174,7 @@ namespace MoviesAPI.Controllers
                 return NotFound();
             }
 
-            if(actorDB.Photo != null)
+            if (actorDB.Photo != null)
             {
                 await _storeFile.DeleteFile(actorDB.Photo, _container);
             }
