@@ -11,16 +11,7 @@ namespace MoviesAPI.Controllers
     [Route("api/genre")]
     public class GenreController : CustomBaseController
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IMapper _mapper;
-
-        public GenreController(ApplicationDbContext context,
-            IMapper mapper)
-            :base(context, mapper)
-        {
-            _context = context;
-            _mapper = mapper;
-        }
+        public GenreController(ApplicationDbContext context, IMapper mapper) :base(context, mapper) { }
 
         /// <summary>
         /// Method to get all the genres in DB
@@ -63,18 +54,7 @@ namespace MoviesAPI.Controllers
         [HttpPut("{id:int}", Name = "putGenre")]
         public async Task<ActionResult> Put(int id, [FromBody] GenreCreationDTO genreCreationDTO)
         {
-            var exists = await _context.Genre.AnyAsync(g => g.Id == id);
-
-            if (!exists)
-            {
-                return NotFound();
-            }
-
-            var entity = _mapper.Map<Genre>(genreCreationDTO);
-            entity.Id = id;
-            _context.Entry(entity).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return await Put<GenreCreationDTO, Genre>(id, genreCreationDTO);
         }
 
         /// <summary>
@@ -85,17 +65,7 @@ namespace MoviesAPI.Controllers
         [HttpDelete("{id:int}", Name = "deleteGenre")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exists = await _context.Genre.AnyAsync(g => g.Id == id);
-
-            if (!exists)
-            {
-                return NotFound();
-            }
-
-            _context.Remove(new Genre() { Id = id });
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return await Delete<Genre>(id);
         }
     }
 }

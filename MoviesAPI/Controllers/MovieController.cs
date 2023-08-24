@@ -12,7 +12,7 @@ namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api/movie")]
-    public class MovieController : ControllerBase
+    public class MovieController : CustomBaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -24,6 +24,7 @@ namespace MoviesAPI.Controllers
             IMapper mapper,
             IStoreFile storeFile,
             ILogger<MovieController> logger)
+            : base (context, mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -38,8 +39,7 @@ namespace MoviesAPI.Controllers
         [HttpGet(Name = "getMovies")]
         public async Task<ActionResult<List<MovieDTO>>> Get()
         {
-            var movies = await _context.Movie.ToListAsync();
-            return _mapper.Map<List<MovieDTO>>(movies);
+            return await Get<Movie, MovieDTO>();
         }
 
         /// <summary>
@@ -234,34 +234,7 @@ namespace MoviesAPI.Controllers
         [HttpPatch("{id:int}", Name = "patchMovie")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<MoviePatchDTO> patchDocument)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-
-            var entityDB = await _context.Movie.FirstOrDefaultAsync(m => m.Id == id);
-
-            if (entityDB == null)
-            {
-                return NotFound();
-            }
-
-            var entityDTO = _mapper.Map<MoviePatchDTO>(entityDB);
-
-            patchDocument.ApplyTo(entityDTO, ModelState);
-
-            var isValid = TryValidateModel(entityDTO);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            _mapper.Map(entityDTO, entityDB);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return await Patch<Movie, MoviePatchDTO>(id, patchDocument);
         }
 
         /// <summary>

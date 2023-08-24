@@ -11,7 +11,7 @@ namespace MoviesAPI.Controllers
 {
     [ApiController]
     [Route("api/actor")]
-    public class ActorController : ControllerBase
+    public class ActorController : CustomBaseController
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
@@ -20,7 +20,7 @@ namespace MoviesAPI.Controllers
 
         public ActorController(ApplicationDbContext context,
             IMapper mapper,
-            IStoreFile storeFile)
+            IStoreFile storeFile) : base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -34,11 +34,7 @@ namespace MoviesAPI.Controllers
         [HttpGet(Name = "getActors")]
         public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginationDTO paginationDTO)
         {
-            var queryable = _context.Actor.AsQueryable();
-            await HttpContext.InsertPaginationParams(queryable, paginationDTO.RecordsPerPage);
-            var entities = await queryable.Page(paginationDTO).ToListAsync();
-            var dtos = _mapper.Map<List<ActorDTO>>(entities);
-            return dtos;
+            return await Get<Actor, ActorDTO>(paginationDTO);
         }
 
         /// <summary>
@@ -49,15 +45,7 @@ namespace MoviesAPI.Controllers
         [HttpGet("{id:int}", Name = "getActor")]
         public async Task<ActionResult<ActorDTO>> Get(int id)
         {
-            var entity = await _context.Actor.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (entity == null)
-            {
-                return NotFound();
-            }
-
-            var actorDto = _mapper.Map<ActorDTO>(entity);
-            return actorDto;
+            return await Get<Actor, ActorDTO>(id);
         }
 
         /// <summary>
@@ -129,34 +117,7 @@ namespace MoviesAPI.Controllers
         [HttpPatch("{id:int}", Name = "patchActor")]
         public async Task<ActionResult> Patch(int id, [FromBody] JsonPatchDocument<ActorPatchDTO> patchDocument)
         {
-            if (patchDocument == null)
-            {
-                return BadRequest();
-            }
-
-            var entityDB = await _context.Actor.FirstOrDefaultAsync(a => a.Id == id);
-
-            if (entityDB == null)
-            {
-                return NotFound();
-            }
-
-            var entityDTO = _mapper.Map<ActorPatchDTO>(entityDB);
-
-            patchDocument.ApplyTo(entityDTO, ModelState);
-
-            var isValid = TryValidateModel(entityDTO);
-
-            if (!isValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            _mapper.Map(entityDTO, entityDB);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return await Patch<Actor, ActorPatchDTO>(id, patchDocument);
         }
 
         /// <summary>
