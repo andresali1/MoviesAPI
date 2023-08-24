@@ -82,5 +82,6 @@ namespace MoviesAPI
         public DbSet<MovieGenre> MovieGenre { get; set; }
         public DbSet<MovieActor> MovieActor { get; set; }
         public DbSet<MovieCinema> MovieCinema { get; set; }
+        public DbSet<Review> Review { get; set; }
     }
 }

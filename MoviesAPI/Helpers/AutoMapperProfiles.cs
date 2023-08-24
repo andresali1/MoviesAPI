@@ -50,6 +50,13 @@ namespace MoviesAPI.Helpers
 
             //User
             CreateMap<IdentityUser, UserDTO>();
+
+            //Review
+            CreateMap<Review, ReviewDTO>()
+                .ForMember(x => x.UserName, x => x.MapFrom(y => y.AppUser.UserName));
+
+            CreateMap<ReviewDTO, Review>();
+            CreateMap<ReviewCreationDTO, Review>();
         }
 
         /// <summary>
