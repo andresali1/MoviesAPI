@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
+using NetTopologySuite;
+using NetTopologySuite.Geometries;
 
 namespace MoviesAPI.Helpers
 {
     public class AutoMapperProfiles : Profile
     {
-        public AutoMapperProfiles()
+        public AutoMapperProfiles(GeometryFactory geometryFactory)
         {
             //Genre
             CreateMap<Genre, GenreDTO>().ReverseMap();
@@ -33,8 +35,17 @@ namespace MoviesAPI.Helpers
             CreateMap<MoviePatchDTO, Movie>().ReverseMap();
 
             //Cinema
-            CreateMap<Cinema, CinemaDTO>().ReverseMap();
-            CreateMap<CinemaCreationDTO, Cinema>();
+            CreateMap<Cinema, CinemaDTO>()
+                .ForMember(d => d.Latitude, d => d.MapFrom(y => y.Location.Y))
+                .ForMember(d => d.Longitude, d => d.MapFrom(x => x.Location.X));
+
+            CreateMap<CinemaDTO, Cinema>()
+                .ForMember(x => x.Location, x => x.MapFrom(y => 
+                    new Coordinate(y.Longitude, y.Latitude)));
+
+            CreateMap<CinemaCreationDTO, Cinema>()
+                .ForMember(x => x.Location, x => x.MapFrom(y =>
+                    new Coordinate(y.Longitude, y.Latitude)));
         }
 
         /// <summary>

@@ -97,7 +97,7 @@ namespace MoviesAPI.Controllers
         /// <returns></returns>
         protected async Task<ActionResult> Put<TCreation, TEntity>(int id, TCreation creationDTO) where TEntity : class, IId
         {
-            var exists = await _context.Set<TEntity>().AnyAsync(g => g.Id == id);
+            var exists = await _context.Set<TEntity>().AnyAsync(x => x.Id == id);
 
             if (!exists)
             {
@@ -128,7 +128,7 @@ namespace MoviesAPI.Controllers
                 return BadRequest();
             }
 
-            var entityDB = await _context.Set<TEntity>().FirstOrDefaultAsync(a => a.Id == id);
+            var entityDB = await _context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
 
             if (entityDB == null)
             {
@@ -161,7 +161,7 @@ namespace MoviesAPI.Controllers
         /// <returns></returns>
         protected async Task<ActionResult> Delete<TEntity>(int id) where TEntity : class, IId, new()
         {
-            var exists = await _context.Set<TEntity>().AnyAsync(g => g.Id == id);
+            var exists = await _context.Set<TEntity>().AnyAsync(x => x.Id == id);
 
             if (!exists)
             {
