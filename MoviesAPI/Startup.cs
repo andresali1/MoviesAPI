@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MoviesAPI.Helpers;
 using MoviesAPI.Interfaces;
 using MoviesAPI.Services;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using System.Text;
 
 namespace MoviesAPI
 {
@@ -46,6 +50,25 @@ namespace MoviesAPI
                 .AddNewtonsoftJson();
 
             services.AddEndpointsApiExplorer();
+
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(Configuration["jwt:key"])
+                        ),
+                        ClockSkew = TimeSpan.Zero
+                    }
+                );
         }
 
         //This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

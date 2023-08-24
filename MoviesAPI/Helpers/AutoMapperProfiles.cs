@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using MoviesAPI.DTOs;
 using MoviesAPI.Entities;
 using NetTopologySuite;
@@ -46,6 +47,9 @@ namespace MoviesAPI.Helpers
             CreateMap<CinemaCreationDTO, Cinema>()
                 .ForMember(x => x.Location, x => x.MapFrom(y =>
                     new Coordinate(y.Longitude, y.Latitude)));
+
+            //User
+            CreateMap<IdentityUser, UserDTO>();
         }
 
         /// <summary>
