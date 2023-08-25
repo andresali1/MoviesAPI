@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.AspNetCore.JsonPatch.Operations;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Moq;
-using System.Text;
-
-namespace MoviesAPI.Tests.UnitTests
+﻿namespace MoviesAPI.Tests.UnitTests
 {
     [TestClass]
     public class ActorControllerTests : TestBase
@@ -53,11 +46,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Get a 404 Status code by trying to get a non existing Actor
+        /// Testing => Get a 404 Status code by trying to get a non Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByNonExistingId()
+        public async Task GetByNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -74,11 +67,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Get an existing Actor by its Id
+        /// Testing => Get an Existent Actor by its Id
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByExistingId()
+        public async Task GetByExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -160,11 +153,11 @@ namespace MoviesAPI.Tests.UnitTests
             mock.Setup(x => x.SaveFile(content, ".jpg", "actors", file.ContentType))
                 .Returns(Task.FromResult("url"));
 
+            var context2 = BuildContext(bdName);
+
             // Test
             var controller = new ActorController(context, mapper, mock.Object);
             var response = await controller.Post(actor);
-
-            var context2 = BuildContext(bdName);
 
             // Verification
             var result = response as CreatedAtRouteResult;
@@ -178,11 +171,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Get 404 status code by trying to put a non existing Actor
+        /// Testing => Get 404 status code by trying to put a non Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task PutNonExistingId()
+        public async Task PutNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -223,14 +216,14 @@ namespace MoviesAPI.Tests.UnitTests
             mock.Setup(x => x.SaveFile(null, null, null, null))
                 .Returns(Task.FromResult("url"));
 
-            // Test
             var context2 = BuildContext(bdName);
+            var context3 = BuildContext(bdName);
+
+            // Test
             var controller = new ActorController(context2, mapper, mock.Object);
 
             var id = 1;
             var response = await controller.Put(id, actorCreationDTO);
-
-            var context3 = BuildContext(bdName);
 
             // Verification
             var result = response as StatusCodeResult;
@@ -291,11 +284,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Get 404 Status code for trying to patch a non existing Actor
+        /// Testing => Get 404 Status code for trying to patch a non Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task PatchNonExistingId()
+        public async Task PatchNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -314,11 +307,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Patch an existing Actor
+        /// Testing => Patch an Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task PatchExistingId()
+        public async Task PatchExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -363,11 +356,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Get 404 by trying to delete a non existing Actor
+        /// Testing => Get 404 by trying to delete a non Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteNonExistingId()
+        public async Task DeleteNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -384,11 +377,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Delete an existing Actor
+        /// Testing => Delete an Existent Actor
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteExistingId()
+        public async Task DeleteExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -415,8 +408,3 @@ namespace MoviesAPI.Tests.UnitTests
         }
     }
 }
-
-
-// Preparation
-// Test
-// Verification

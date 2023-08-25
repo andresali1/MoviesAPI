@@ -33,23 +33,13 @@ namespace MoviesAPI.Controllers
         }
 
         /// <summary>
-        /// Method to get all the movies in DB
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet(Name = "getMovies")]
-        public async Task<ActionResult<List<MovieDTO>>> Get()
-        {
-            return await Get<Movie, MovieDTO>();
-        }
-
-        /// <summary>
         /// Method to get the newest movies
         /// </summary>
         /// <returns></returns>
         [HttpGet("latest", Name = "getLatest")]
         public async Task<ActionResult<MovieIndexDTO>> GetLatest()
         {
-            var top = 5;
+            var top = 3;
             var today = DateTime.Today;
 
             var comingReleases = await _context.Movie

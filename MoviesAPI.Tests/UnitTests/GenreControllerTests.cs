@@ -32,11 +32,11 @@
         }
 
         /// <summary>
-        /// Testing => Getting a 404 Status code by trying to get a non existing Genre 
+        /// Testing => Getting a 404 Status code by trying to get a non Existent Genre 
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByNonExistingId()
+        public async Task GetByNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -57,7 +57,7 @@
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByExistingId()
+        public async Task GetByExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -111,11 +111,11 @@
         }
 
         /// <summary>
-        /// Testing => Get 404 status code for trying to update a non existing Genre
+        /// Testing => Get 404 status code for trying to update a non Existent Genre
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task PutNonExistingId()
+        public async Task PutNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -132,11 +132,11 @@
         }
 
         /// <summary>
-        /// Testing => Updating an existing Genre with Put
+        /// Testing => Updating an Existent Genre with Put
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task PutExistingId()
+        public async Task PutExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -166,11 +166,11 @@
         }
 
         /// <summary>
-        /// Testing => Getting a 404 Status code by trying to delete a non existing Genre
+        /// Testing => Getting a 404 Status code by trying to delete a non Existent Genre
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteNonExistingId()
+        public async Task DeleteNonExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -188,11 +188,11 @@
         }
 
         /// <summary>
-        /// Testing => Delete an existing Genre
+        /// Testing => Delete an Existent Genre
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteExistingId()
+        public async Task DeleteExistentId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
