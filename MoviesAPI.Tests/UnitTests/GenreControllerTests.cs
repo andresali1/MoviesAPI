@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MoviesAPI.DTOs;
-
-namespace MoviesAPI.Tests.UnitTests
+﻿namespace MoviesAPI.Tests.UnitTests
 {
     [TestClass]
     public class GenreControllerTests : TestBase
@@ -36,11 +32,11 @@ namespace MoviesAPI.Tests.UnitTests
         }
 
         /// <summary>
-        /// Testing => Getting a 404 Status code by trying to get a non existent Genre 
+        /// Testing => Getting a 404 Status code by trying to get a non existing Genre 
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByNonExistentId()
+        public async Task GetByNonExistingId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -61,7 +57,7 @@ namespace MoviesAPI.Tests.UnitTests
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task GetByExistentId()
+        public async Task GetByExistingId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -91,7 +87,7 @@ namespace MoviesAPI.Tests.UnitTests
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Create()
+        public async Task Post()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -104,21 +100,43 @@ namespace MoviesAPI.Tests.UnitTests
             var controller = new GenreController(context, mapper);
             var response = await controller.Post(newGenre);
 
+            var context2 = BuildContext(bdName);
+
             // Verification
             var result = response as CreatedAtRouteResult;
             Assert.IsNotNull(result);
 
-            var context2 = BuildContext(bdName);
             var amount = await context2.Genre.CountAsync();
             Assert.AreEqual(1, amount);
         }
 
         /// <summary>
-        /// Testing => Updating a Genre with Put
+        /// Testing => Get 404 status code for trying to update a non existing Genre
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Put()
+        public async Task PutNonExistingId()
+        {
+            // Preparation
+            var bdName = Guid.NewGuid().ToString();
+            var context = BuildContext(bdName);
+            var mapper = ConfigureAutoMapper();
+
+            // Test
+            var controller = new GenreController(context, mapper);
+            var response = await controller.Put(1, new GenreCreationDTO() { G_Name = "Modified" });
+
+            // Verification
+            var result = response as StatusCodeResult;
+            Assert.AreEqual(404, result.StatusCode);
+        }
+
+        /// <summary>
+        /// Testing => Updating an existing Genre with Put
+        /// </summary>
+        /// <returns></returns>
+        [TestMethod]
+        public async Task PutExistingId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -128,30 +146,31 @@ namespace MoviesAPI.Tests.UnitTests
             context.Genre.Add(new Genre() { G_Name = "Genre 1" });
             await context.SaveChangesAsync();
 
+            var genreCreationDTO = new GenreCreationDTO() { G_Name = "Updated Name" };
+
             // Test
             var context2 = BuildContext(bdName);
             var controller = new GenreController(context2, mapper);
 
-            var genreCreationDTO = new GenreCreationDTO() { G_Name = "Updated Name" };
-
             var id = 1;
             var response = await controller.Put(id, genreCreationDTO);
+
+            var context3 = BuildContext(bdName);
 
             // Verification
             var result = response as StatusCodeResult;
             Assert.AreEqual(204, result.StatusCode);
 
-            var context3 = BuildContext(bdName);
             var exists = await context3.Genre.AnyAsync(g => g.G_Name.Equals(genreCreationDTO.G_Name));
             Assert.IsTrue(exists);
         }
 
         /// <summary>
-        /// Testing => Getting a 404 Status code by trying to delete a non existent Genre
+        /// Testing => Getting a 404 Status code by trying to delete a non existing Genre
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteNonExistentId()
+        public async Task DeleteNonExistingId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -173,7 +192,7 @@ namespace MoviesAPI.Tests.UnitTests
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task DeleteExistentId()
+        public async Task DeleteExistingId()
         {
             // Preparation
             var bdName = Guid.NewGuid().ToString();
@@ -191,19 +210,14 @@ namespace MoviesAPI.Tests.UnitTests
 
             var response = await controller.Delete(1);
 
+            var context3 = BuildContext(bdName);
+
             // Verification
             var result = response as StatusCodeResult;
             Assert.AreEqual(204, result.StatusCode);
 
-            var context3 = BuildContext(bdName);
             var exists = await context3.Genre.AnyAsync(g => g.G_Name.Equals(newGenre.G_Name));
             Assert.IsFalse(exists);
         }
     }
 }
-
-
-
-// Preparation
-// Test
-// Verification
