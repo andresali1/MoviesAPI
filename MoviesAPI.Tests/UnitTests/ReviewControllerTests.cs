@@ -110,18 +110,19 @@ namespace MoviesAPI.Tests.UnitTests
             var reviewDTO = new ReviewCreationDTO() { Comment = "good", Score = 4 };
 
             var context2 = BuildContext(bdName);
+            var context3 = BuildContext(bdName);
 
             // Test
-            var controller = new ReviewController(context, mapper);
+            var controller = new ReviewController(context2, mapper);
             controller.ControllerContext = BuildControllerContext();
 
             var response = await controller.Post(movieId, reviewDTO);
 
             // Verification
-            var result = response as StatusCodeResult;
-            Assert.AreEqual(204, result.StatusCode);
+            var result = response as NoContentResult;
+            Assert.IsNotNull(result);
 
-            var exists = await context2.Review.AnyAsync(r => r.Comment.Equals(reviewDTO.Comment));
+            var exists = await context3.Review.AnyAsync(r => r.Comment.Equals(reviewDTO.Comment));
             Assert.IsTrue(exists);
         }
 
@@ -299,7 +300,3 @@ namespace MoviesAPI.Tests.UnitTests
         }
     }
 }
-
-// Preparation
-// Test
-// Verification

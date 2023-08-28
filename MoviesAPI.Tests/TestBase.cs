@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using MoviesAPI.Helpers;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MoviesAPI.Tests
 {
@@ -58,6 +61,45 @@ namespace MoviesAPI.Tests
             {
                 HttpContext = new DefaultHttpContext() { User = user }
             };
+        }
+
+        /// <summary>
+        /// Method to generate a new instance of localDB test to build an application factory
+        /// </summary>
+        /// <param name="bdName">Given bdNew name</param>
+        /// <param name="ignoreSecurity">With this we can ignore the authorization filter</param>
+        /// <returns></returns>
+        protected WebApplicationFactory<Startup> BuildWebApplicationFactory(string bdName, bool ignoreSecurity = true)
+        {
+            var factory = new WebApplicationFactory<Startup>();
+
+            factory = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    var descriptorDBContext = services.SingleOrDefault(d => 
+                        d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>));
+
+                    if(descriptorDBContext != null)
+                    {
+                        services.Remove(descriptorDBContext);
+                    }
+
+                    services.AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(bdName));
+
+                    if (ignoreSecurity)
+                    {
+                        services.AddSingleton<IAuthorizationHandler, AllowAnonymousHandler>();
+
+                        services.AddControllers(options =>
+                        {
+                            options.Filters.Add(new FakeUserFilter());
+                        });
+                    }
+                });
+            });
+
+            return factory;
         }
     }
 }
