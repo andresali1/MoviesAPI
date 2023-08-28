@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Linq;
+﻿using System.Linq;
 
 namespace MoviesAPI.Tests.UnitTests
 {
@@ -647,8 +646,3 @@ namespace MoviesAPI.Tests.UnitTests
         }
     }
 }
-
-
-// Preparation
-// Test
-// Verification

@@ -11,3 +11,4 @@ global using Microsoft.AspNetCore.JsonPatch;
 global using Microsoft.AspNetCore.JsonPatch.Operations;
 global using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 global using System.Text;
+global using Microsoft.Extensions.Logging;
